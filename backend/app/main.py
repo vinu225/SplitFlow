@@ -101,6 +101,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 
 @app.get("/")
+@app.get("/dashboard")
 def serve_dashboard():
     static_file = os.path.join(os.path.dirname(__file__), "..", "static", "index.html")
     if os.path.exists(static_file):

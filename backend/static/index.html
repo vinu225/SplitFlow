@@ -3,511 +3,966 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SplitFlow AI — Autonomous Contract & Cross-Border Payout Engine</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <title>SplitFlow: Contracts to Payouts</title>
+  
+  <!-- Fonts: Space Grotesk (Headings), JetBrains Mono (Numbers/Labels), Inter (Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  
   <style>
-    .highlight-active { background-color: rgba(254, 240, 138, 0.6); border-left: 4px solid #eab308; }
-    .fade-in { animation: fadeIn 0.3s ease-in-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    :root, [data-theme="light"] {
+      --bg: #ffffff;
+      --panel: #efeff1;
+      --text: #15151a;
+      --muted: #55555f;
+      --line: #e3e3e8;
+      --accent: #5b5bf0;
+      --accent-ink: #ffffff;
+      --accent-soft: #b9b9f7;
+      --warm: #f98a63;
+      --ok: #1e9e5a;
+      --warn: #d98a00;
+      --err: #d93025;
+      --font-heading: 'Space Grotesk', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      --font-body: 'Inter', system-ui, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --bg: #101014;
+      --panel: #1a1a21;
+      --text: #f2f2f6;
+      --muted: #a2a2af;
+      --line: #2b2b35;
+      --accent: #7c7cf5;
+      --accent-ink: #0c0c12;
+      --accent-soft: #35357a;
+      --warm: #f3946f;
+      --err: #f28b82;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body), system-ui, sans-serif;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-heading), system-ui, sans-serif;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    .mono { font-family: var(--font-mono), ui-monospace, monospace; }
+
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Top Sticky Header */
+    header.top {
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      z-index: 50;
+    }
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      gap: 16px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-heading), sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .logo i {
+      width: 24px;
+      height: 24px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: inline-block;
+      position: relative;
+    }
+    .logo i::after {
+      content: "";
+      position: absolute;
+      right: 3px;
+      bottom: 3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warm);
+    }
+
+    /* Tabs in Navigation */
+    .nav-tabs {
+      display: flex;
+      gap: 20px;
+      height: 100%;
+      align-items: stretch;
+    }
+    .nav-tab {
+      background: transparent;
+      border: 0;
+      border-bottom: 2px solid transparent;
+      color: var(--muted);
+      font-family: var(--font-body), sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 4px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .nav-tab:hover {
+      color: var(--text);
+    }
+    .nav-tab.active {
+      color: var(--text);
+      font-weight: 700;
+      border-bottom-color: var(--accent);
+    }
+
+    /* Header Actions */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      padding: 9px 15px;
+      font-family: var(--font-mono), monospace;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 0;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: filter 0.15s;
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn.ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .btn.ghost:hover {
+      background: var(--panel);
+    }
+    .btn.sm {
+      padding: 6px 10px;
+      font-size: 10px;
+    }
+    .btn.active-sow {
+      background: var(--panel);
+      border-color: var(--text);
+      color: var(--text);
+    }
+
+    /* Tags & Badges */
+    .tag {
+      font-family: var(--font-mono), monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .badge {
+      font-family: var(--font-mono), monospace;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: inline-block;
+    }
+    .b-ok {
+      background: color-mix(in srgb, var(--ok) 18%, transparent);
+      color: var(--ok);
+    }
+    .b-warn {
+      background: color-mix(in srgb, var(--warn) 20%, transparent);
+      color: var(--warn);
+    }
+    .b-err {
+      background: color-mix(in srgb, var(--err) 20%, transparent);
+      color: var(--err);
+    }
+
+    /* Slim Summary Strip */
+    .summary-strip {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+      padding: 9px 0;
+      font-size: 12px;
+    }
+    .summary-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .stat-item {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .stat-label {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    /* Tab Header Area */
+    .tab-header {
+      padding: 24px 0 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 24px;
+    }
+    .tab-header h2 {
+      font-size: 26px;
+      margin: 6px 0 4px;
+    }
+    .tab-sub {
+      color: var(--muted);
+      margin: 0;
+      font-size: 13px;
+    }
+
+    /* Layout Cards and Panels */
+    .panel-card {
+      border: 1px solid var(--line);
+      background: var(--bg);
+      padding: 20px;
+      border-radius: 2px;
+    }
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .row:last-child { border-bottom: 0; }
+    .row b {
+      font-family: var(--font-mono), monospace;
+      font-weight: 700;
+    }
+    .quote {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: color-mix(in srgb, var(--warm) 18%, transparent);
+      font-size: 12px;
+      border-left: 3px solid var(--warm);
+      line-height: 1.45;
+    }
+
+    /* Amendment Banner */
+    .alert-banner {
+      background: color-mix(in srgb, var(--warn) 14%, transparent);
+      border: 1px solid var(--warn);
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .alert-banner h4 {
+      font-size: 14px;
+      color: var(--warn);
+      margin-bottom: 3px;
+    }
+    .alert-banner p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    /* Data Table */
+    .table-container {
+      border: 1px solid var(--line);
+      background: var(--bg);
+      overflow-x: auto;
+      border-radius: 2px;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    table.data-table th {
+      background: var(--panel);
+      padding: 10px 14px;
+      font-family: var(--font-mono), monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      font-weight: 700;
+    }
+    table.data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+    table.data-table tr:last-child td { border-bottom: 0; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+
+    /* Source Quote Line Highlighting */
+    .clause-box {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      padding: 14px;
+      font-size: 12px;
+      font-family: var(--font-mono), monospace;
+      line-height: 1.6;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .clause-item {
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      border-left: 2px solid transparent;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .clause-item:hover {
+      background: color-mix(in srgb, var(--accent) 8%, transparent);
+    }
+    .clause-item.highlight-active {
+      background: color-mix(in srgb, var(--warm) 22%, transparent);
+      border-left: 3px solid var(--warm);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    /* Copilot Chat UI */
+    .chat-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 20px;
+    }
+    .chat-box {
+      border: 1px solid var(--line);
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      height: 480px;
+      border-radius: 2px;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 13px;
+    }
+    .chat-msg {
+      max-width: 85%;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      line-height: 1.5;
+    }
+    .chat-msg.ai {
+      background: var(--panel);
+      align-self: flex-start;
+    }
+    .chat-msg.user {
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      border-color: var(--accent);
+      align-self: flex-end;
+    }
+    .chat-input-bar {
+      border-top: 1px solid var(--line);
+      padding: 12px;
+      display: flex;
+      gap: 8px;
+      background: var(--panel);
+    }
+    .chat-input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      color: var(--text);
+      padding: 8px 12px;
+      font-family: var(--font-body), sans-serif;
+      font-size: 13px;
+      border-radius: 2px;
+    }
+    .chat-input:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+    }
+
+    /* Footer Note */
+    .note {
+      background: var(--panel);
+      padding: 16px 20px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 24px;
+      border-left: 3px solid var(--line);
+    }
+    footer.foot {
+      border-top: 1px solid var(--line);
+      padding: 20px 0;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 40px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 820px) {
+      .dash-grid, .chat-layout { grid-template-columns: 1fr; }
+      nav.nav-tabs { display: none; }
+      .summary-inner { flex-direction: column; align-items: flex-start; }
+    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col">
+<body>
 
-  <!-- Top Navigation Bar -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-        <i class="fa-solid fa-arrows-split-up-and-left text-white text-lg"></i>
-      </div>
-      <div>
-        <div class="flex items-center space-x-2">
-          <h1 class="text-xl font-bold tracking-tight text-white">SplitFlow <span class="text-indigo-400">AI</span></h1>
-          <span class="text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full font-mono font-medium">v3.3 Production</span>
-        </div>
-        <p class="text-xs text-slate-400">PayPal-Powered Creator Invoicing & Payout Mesh</p>
-      </div>
-    </div>
+  <!-- ========================================================================= -->
+  <!-- TOP STICKY HEADER (MATCHING LANDING PAGE)                                 -->
+  <!-- ========================================================================= -->
+  <header class="top">
+    <div class="wrap nav">
+      <a class="logo" href="/" title="SplitFlow Homepage">
+        <i aria-hidden="true"></i>SplitFlow
+      </a>
 
-    <!-- Tenant Context & Session Indicator -->
-    <div class="flex items-center space-x-4">
-      <div class="hidden md:flex items-center space-x-2 text-xs bg-slate-800/60 border border-slate-700/60 px-3 py-1.5 rounded-lg">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="text-slate-300 font-medium" id="tenant-display">Apex Media Studios</span>
-        <span class="text-slate-500">|</span>
-        <span class="text-slate-400 font-mono">PayPal Sandbox Active</span>
+      <!-- Desktop Section Tabs -->
+      <nav class="nav-tabs" aria-label="Dashboard views">
+        <button onclick="switchTab('contracts')" id="nav-btn-contracts" class="nav-tab active">
+          Contracts
+        </button>
+        <button onclick="switchTab('staging')" id="nav-btn-staging" class="nav-tab">
+          Payouts <span id="badge-staged-count" class="badge b-warn hidden">1</span>
+        </button>
+        <button onclick="switchTab('ledger')" id="nav-btn-ledger" class="nav-tab">
+          Ledger
+        </button>
+        <button onclick="switchTab('copilot')" id="nav-btn-copilot" class="nav-tab">
+          Copilot
+        </button>
+      </nav>
+
+      <!-- Right Header Actions -->
+      <div class="nav-actions">
+        <button onclick="loadSampleContract(1)" id="btn-sample-v1" class="btn ghost sm active-sow" title="Load Baseline Contract">
+          SOW v1
+        </button>
+        <button onclick="loadSampleContract(2)" id="btn-sample-v2" class="btn ghost sm" title="Load Net-60 Amendment">
+          SOW v2
+        </button>
+        <span class="badge b-ok mono" title="Connected to PayPal Developer Sandbox">SANDBOX OK</span>
       </div>
-      <button onclick="exportCSV()" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg transition shadow-sm">
-        <i class="fa-solid fa-file-csv text-emerald-400"></i>
-        <span>Schedule-C CSV</span>
-      </button>
     </div>
   </header>
 
-  <!-- Navigation Tabs -->
-  <div class="bg-slate-900/40 border-b border-slate-800/80 px-6">
-    <nav class="flex space-x-6 text-sm">
-      <button onclick="switchTab('contracts')" id="tab-contracts" class="tab-btn py-3 border-b-2 border-indigo-500 text-indigo-400 font-medium flex items-center space-x-2">
-        <i class="fa-solid fa-file-contract"></i>
-        <span>1. Contract Parsing & Diff</span>
-      </button>
-      <button onclick="switchTab('staging')" id="tab-staging" class="tab-btn py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2">
-        <i class="fa-solid fa-layer-group"></i>
-        <span>2. Staged Payouts & Approval</span>
-        <span id="badge-staged-count" class="hidden bg-indigo-500/20 text-indigo-300 text-xs px-1.5 py-0.2 rounded-full font-mono">1</span>
-      </button>
-      <button onclick="switchTab('ledger')" id="tab-ledger" class="tab-btn py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2">
-        <i class="fa-solid fa-book-journal-whills"></i>
-        <span>3. Double-Entry Ledger</span>
-      </button>
-      <button onclick="switchTab('copilot')" id="tab-copilot" class="tab-btn py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2">
-        <i class="fa-solid fa-robot"></i>
-        <span>4. Financial Copilot</span>
-      </button>
-    </nav>
+  <!-- ========================================================================= -->
+  <!-- SLIM SUMMARY STRIP                                                        -->
+  <!-- ========================================================================= -->
+  <div class="summary-strip">
+    <div class="wrap summary-inner">
+      <div class="stat-item">
+        <span class="stat-label">Active SOW:</span>
+        <b class="mono" id="summary-sow-label">NordVPN Campaign ($5,000.00 USD)</b>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Verified Collaborators:</span>
+        <b class="mono">3 in directory</b>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Ledger Parity:</span>
+        <b class="mono" style="color:var(--ok)">$0.00 Discrepancy</b>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">System Mode:</span>
+        <span class="badge b-warn">PayPal Sandbox Prototype</span>
+      </div>
+    </div>
   </div>
 
-  <!-- Main Content Viewport -->
-  <main class="flex-1 p-6 max-w-7xl mx-auto w-full">
+  <!-- ========================================================================= -->
+  <!-- MAIN WORKSPACE                                                            -->
+  <!-- ========================================================================= -->
+  <main class="wrap" style="padding-bottom: 40px;">
 
-    <!-- ===================================================================== -->
-    <!-- TAB 1: CONTRACT PARSING & MULTI-FACET DIFF                            -->
-    <!-- ===================================================================== -->
-    <div id="view-contracts" class="space-y-6">
-      
-      <!-- Top Actions Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+    <!-- ======================================================================= -->
+    <!-- TAB 1: CONTRACTS                                                        -->
+    <!-- ======================================================================= -->
+    <section id="view-contracts">
+      <div class="tab-header">
+        <span class="tag">Contract Ingestion & Verification</span>
+        <h2>Contracts</h2>
+        <p class="tab-sub">Each extracted amount is checked against verbatim clauses. Click any clause to verify the source text.</p>
+      </div>
+
+      <!-- Re-approval Alert Banner (Shown only on v2 amendment) -->
+      <div id="diff-alert-banner" class="alert-banner hidden">
         <div>
-          <h2 class="text-base font-semibold text-white">Sponsorship Contract Ingestion & Change Detection</h2>
-          <p class="text-xs text-slate-400">Verifies verbatim quotes, detects contractual financial risk, and handles multi-facet amendments.</p>
+          <h4>Contract amendment detected</h4>
+          <p id="diff-summary-text">Payment window changed from Net-15 to Net-60. Milestone 2 reduced from $2,500.00 to $2,000.00 (-$500.00). Payout staging is locked.</p>
         </div>
-        <div class="flex items-center space-x-3">
-          <button onclick="loadSampleContract(1)" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs px-3 py-2 rounded-lg transition font-medium">
-            <i class="fa-solid fa-file-arrow-up mr-1.5"></i> Load Sample SOW v1 (Baseline)
-          </button>
-          <button onclick="loadSampleContract(2)" class="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-xs px-3 py-2 rounded-lg transition font-medium">
-            <i class="fa-solid fa-code-compare mr-1.5"></i> Load SOW v2 (Net-60 Shift)
-          </button>
-        </div>
+        <button onclick="reapproveContract()" class="btn">Accept & Re-approve</button>
       </div>
 
-      <!-- Re-approval Alert Banner (Hidden by default) -->
-      <div id="diff-alert-banner" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 fade-in">
-        <div class="flex items-start justify-between">
-          <div class="flex items-start space-x-3">
-            <i class="fa-solid fa-triangle-exclamation text-amber-400 text-lg mt-0.5"></i>
-            <div>
-              <h4 class="text-sm font-semibold text-amber-300">Contract Amendment Detected — Cash Flow Risk Identified</h4>
-              <p id="diff-summary-text" class="text-xs text-slate-300 mt-1 font-mono">Payment window delayed from Net-15 to Net-60 days. Automated payout staging is locked.</p>
+      <div class="dash-grid">
+        <!-- Left: Contract Document Text & Quote Highlighting -->
+        <div class="panel-card">
+          <div class="row">
+            <span class="tag">Source Document</span>
+            <span id="hash-badge" class="badge mono">SHA: a7f8c9d0...</span>
+          </div>
+          <div style="margin: 10px 0 6px; font-weight: 700;" id="doc-title-display">NordVPN_Sponsorship_Agreement_v1.pdf</div>
+          
+          <div id="document-content-box" class="clause-box">
+            <div style="font-weight:700; margin-bottom:8px;">STATEMENT OF WORK #2026-NORD-01</div>
+            <div style="color:var(--muted); margin-bottom:12px;">Sponsor: NordVPN Global · Creator: Apex Media Studios</div>
+            
+            <div id="quote-line-1" class="clause-item highlight-active" onclick="triggerHighlight(1)">
+              • <b>Milestone 1: $2,500.00 USD</b> (50% due upon mutual signing). Deliverable: Script draft & storyboard concept.
+            </div>
+            
+            <div id="quote-line-2" class="clause-item" onclick="triggerHighlight(2)">
+              • <b>Milestone 2: $2,500.00 USD</b> (50% within 14 days of publication). Deliverable: Final video live publication.
+            </div>
+            
+            <div id="quote-line-3" class="clause-item" style="color:var(--muted);">
+              • Settlement terms: All invoices payable via PayPal Net-15 days. Standard kill fee applies.
             </div>
           </div>
-          <button onclick="reapproveContract()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
-            Accept & Re-approve Terms
-          </button>
+
+          <div class="row" style="margin-top:12px; border-bottom:0;">
+            <span style="color:var(--muted); font-size:12px;">Quote status</span>
+            <span class="badge b-ok">Source quote verified</span>
+          </div>
+        </div>
+
+        <!-- Right: Extracted Milestones & Collaborator Split Plan -->
+        <div class="panel-card">
+          <div class="row">
+            <span class="tag">Split Schedule</span>
+            <span class="badge b-ok">Totals match</span>
+          </div>
+          
+          <div style="margin: 12px 0 16px;">
+            <div style="font-weight:700; font-size:16px;">Milestone 1: Deposit</div>
+            <div style="color:var(--muted); font-size:12px;">Gross target: <span class="mono" style="color:var(--text); font-weight:700;">$2,500.00 USD</span></div>
+          </div>
+
+          <div style="background:var(--panel); padding:12px; border-radius:2px; margin-bottom:16px;">
+            <div class="row"><span>Ana Silva (Designer)</span><b class="mono">$300.00 flat priority</b></div>
+            <div class="row"><span>Mark Santos (Editor)</span><b class="mono">20.00% net remainder</b></div>
+            <div class="row"><span>Apex Media (Creator)</span><b class="mono">Remainder pool retention</b></div>
+          </div>
+
+          <div class="row">
+            <span id="invoice-status-m1" style="font-size:12px; color:var(--muted);">Invoice state: Ready to dispatch</span>
+            <button onclick="generatePayPalInvoice(1)" id="btn-invoice-m1" class="btn">
+              Generate PayPal Invoice
+            </button>
+          </div>
+
+          <div style="margin-top:20px; padding-top:14px; border-top:1px solid var(--line);">
+            <div class="row">
+              <span>Milestone 2 (Scheduled)</span>
+              <b class="mono" id="m2-amount-display">$2,500.00 USD</b>
+            </div>
+            <div style="color:var(--muted); font-size:11px; margin-top:4px;">Pending publication telemetry & contract term confirmation.</div>
+          </div>
         </div>
       </div>
+    </section>
 
-      <!-- Side-by-Side Ingestion View -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        <!-- Left: Contract Document Preview & Highlight Bounding Box -->
-        <div class="bg-slate-900/60 rounded-xl border border-slate-800 p-5 flex flex-col h-[520px]">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800 text-xs">
-            <span class="font-medium text-slate-300 flex items-center space-x-2">
-              <i class="fa-solid fa-file-pdf text-red-400"></i>
-              <span id="doc-title-display">NordVPN_Sponsorship_Agreement_v1.pdf</span>
-            </span>
-            <span id="hash-badge" class="font-mono text-[10px] text-slate-500 bg-slate-800 px-2 py-0.5 rounded">SHA: e3b0c44...</span>
-          </div>
-
-          <div id="document-content-box" class="flex-1 overflow-y-auto mt-4 space-y-4 font-mono text-xs text-slate-300 leading-relaxed bg-slate-950 p-4 rounded-lg border border-slate-900">
-            <div class="text-indigo-400 font-bold">BRAND SPONSORSHIP STATEMENT OF WORK</div>
-            <div>Brand Sponsor: NordVPN Global Media Operations</div>
-            <div>Content Creator: Apex Media Studios LLC</div>
-            <div class="pt-2 text-slate-400">3. COMPENSATION & PAYMENT MILESTONES:</div>
-            <div id="quote-line-1" class="p-2 rounded transition cursor-pointer hover:bg-slate-800/60" onclick="triggerHighlight(1)">
-              • Milestone 1: $2,500.00 USD (<span class="text-indigo-300 font-bold">50% due upon mutual signing</span>). Deliverable: Completed script draft and visual storyboards.
-            </div>
-            <div id="quote-line-2" class="p-2 rounded transition cursor-pointer hover:bg-slate-800/60" onclick="triggerHighlight(2)">
-              • Milestone 2: $2,500.00 USD (<span class="text-indigo-300 font-bold">50% within 14 days of video publish</span>). Deliverable: Final video live publication with tracking telemetry.
-            </div>
-            <div id="quote-line-3" class="p-2 rounded transition cursor-pointer hover:bg-slate-800/60">
-              4. SETTLEMENT TERMS: All invoices subject to Net-15 payment terms via PayPal. Standard kill fee applies.
-            </div>
-          </div>
-          <div class="pt-3 text-[11px] text-slate-500 flex items-center space-x-1">
-            <i class="fa-solid fa-circle-check text-emerald-400"></i>
-            <span>Verbatim quote substrings verified against source AST bounding boxes.</span>
-          </div>
-        </div>
-
-        <!-- Right: Structured Milestones & Pre-Verified Collaborators -->
-        <div class="bg-slate-900/60 rounded-xl border border-slate-800 p-5 flex flex-col justify-between">
+    <!-- ======================================================================= -->
+    <!-- TAB 2: STAGED PAYOUTS & APPROVAL                                        -->
+    <!-- ======================================================================= -->
+    <section id="view-staging" class="hidden">
+      <div class="tab-header">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;">
           <div>
-            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-              <h3 class="text-sm font-semibold text-white">Extracted Milestones & Split Rules</h3>
-              <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono">100% Invariant Verified</span>
-            </div>
-
-            <!-- Milestone Cards -->
-            <div class="mt-4 space-y-4">
-              <!-- M1 Card -->
-              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-3">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs">1</span>
-                    <span class="text-sm font-semibold text-white">Initial Deposit (Script & Concept)</span>
-                  </div>
-                  <span class="text-sm font-mono font-bold text-emerald-400">$2,500.00 USD</span>
-                </div>
-                
-                <div class="text-xs text-slate-400 bg-slate-900 p-2.5 rounded-lg space-y-1.5 border border-slate-800/60">
-                  <div class="font-medium text-slate-300 text-[11px] uppercase tracking-wider">Configured Collaborator Allocations:</div>
-                  <div class="flex justify-between items-center text-slate-300">
-                    <span><i class="fa-solid fa-user-pen text-indigo-400 mr-1.5"></i> Mark Santos (Editor)</span>
-                    <span class="font-mono text-indigo-300 font-semibold">20.00% of Net Pool</span>
-                  </div>
-                  <div class="flex justify-between items-center text-slate-300">
-                    <span><i class="fa-solid fa-palette text-amber-400 mr-1.5"></i> Ana Silva (Designer)</span>
-                    <span class="font-mono text-amber-300 font-semibold">$300.00 Flat Fee</span>
-                  </div>
-                </div>
-
-                <div class="flex items-center justify-between pt-1">
-                  <span id="invoice-status-m1" class="text-xs text-slate-500 font-mono">Status: Ready to Invoice</span>
-                  <button onclick="generatePayPalInvoice(1)" id="btn-invoice-m1" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition shadow-sm">
-                    <i class="fa-brands fa-paypal mr-1.5"></i> Generate PayPal Invoice
-                  </button>
-                </div>
-              </div>
-
-              <!-- M2 Card -->
-              <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-3 opacity-75">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center space-x-2">
-                    <span class="w-6 h-6 rounded bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-xs">2</span>
-                    <span class="text-sm font-semibold text-white">Final Publication & Telemetry</span>
-                  </div>
-                  <span id="m2-amount-display" class="text-sm font-mono font-bold text-slate-300">$2,500.00 USD</span>
-                </div>
-                <div class="text-xs text-slate-500">Scheduled upon video live date. Subject to contract amendment verification.</div>
-              </div>
-            </div>
+            <span class="tag">Review Before Transfer</span>
+            <h2>Staged Payouts</h2>
+            <p class="tab-sub">Net deposit detected from PayPal capture. Review amounts and estimated fees before dispatching.</p>
           </div>
-
-          <div class="pt-4 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
-            <span>Pre-Verified Directory Contacts:</span>
-            <span class="text-slate-300 font-mono">3 Registered</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ===================================================================== -->
-    <!-- TAB 2: STAGED PAYOUTS & APPROVAL                                      -->
-    <!-- ===================================================================== -->
-    <div id="view-staging" class="space-y-6 hidden">
-      
-      <!-- Ingestion & Reconciliation Banner -->
-      <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
-        <div>
-          <h2 class="text-base font-semibold text-white">Milestone Ingestion & Cumulative Allocation</h2>
-          <p class="text-xs text-slate-400">Decoupled PayPal capture traversal with cumulative multi-capture priority protection.</p>
-        </div>
-        <div class="flex items-center space-x-3">
-          <!-- Demo Sandbox Payment Simulator Trigger -->
-          <button onclick="simulatePaymentCapture()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs px-3.5 py-2 rounded-lg transition font-medium">
-            <i class="fa-solid fa-bolt mr-1.5"></i> Simulate $2,500 Invoice Payment (Capture)
+          <button onclick="simulatePaymentCapture()" class="btn ghost sm">
+            Simulate $2,500 Capture Webhook
           </button>
         </div>
       </div>
 
-      <!-- Staged Batch Card -->
-      <div id="staged-batch-container" class="space-y-4">
-        <div class="bg-slate-900/60 rounded-xl border border-slate-800 p-6 space-y-6">
-          <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-slate-800">
-            <div>
-              <div class="flex items-center space-x-2">
-                <span class="text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-mono font-semibold">STAGED FOR APPROVAL</span>
-                <span class="text-sm font-semibold text-white">NordVPN Campaign — Milestone 1 (Deposit)</span>
-              </div>
-              <div class="text-xs text-slate-400 mt-1 font-mono">Capture Ref: <span id="staged-capture-id" class="text-indigo-400">CAP-2026-991A</span> | Net Deposited: <span id="staged-net-received" class="text-emerald-400 font-bold">$2,412.26 USD</span> (After $87.74 Fee)</div>
-            </div>
-            <div class="text-right">
-              <div class="text-xs text-slate-400">SHA-256 State Hash:</div>
-              <div id="staged-state-hash" class="text-[11px] font-mono text-slate-500">7f8a91b2c34d...</div>
+      <div class="panel-card" style="margin-bottom: 20px;">
+        <div class="row">
+          <div>
+            <span class="tag">Incoming Capture</span>
+            <div style="font-weight:700; font-size:15px; margin-top:2px;">NordVPN Campaign — Milestone 1</div>
+            <div style="color:var(--muted); font-size:12px;" class="mono">
+              Capture ID: <span id="staged-capture-id">CAP-2026-991A</span> · Net deposited: <b id="staged-net-received" style="color:var(--text);">$2,412.26 USD</b> (after $87.74 inbound fee)
             </div>
           </div>
-
-          <!-- Staged Collaborator Line Items Table -->
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
-                <tr>
-                  <th class="pb-2">Collaborator Name</th>
-                  <th class="pb-2">Role</th>
-                  <th class="pb-2">Verified PayPal Account</th>
-                  <th class="pb-2">Split Allocation</th>
-                  <th class="pb-2 text-right">Net Amount</th>
-                  <th class="pb-2 text-right">Estimated Arrival</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-800/60 font-mono text-slate-300">
-                <tr>
-                  <td class="py-3 font-semibold text-white">Ana Silva</td>
-                  <td>Thumbnail Designer</td>
-                  <td class="text-indigo-300">designer-br@sandbox.com <i class="fa-solid fa-shield-halved text-emerald-400 ml-1" title="Directory Verified"></i></td>
-                  <td class="text-slate-400">Fixed Fee Priority</td>
-                  <td class="text-right text-emerald-400 font-bold">$300.00</td>
-                  <td class="text-right text-slate-400">Instant (Est.)</td>
-                </tr>
-                <tr>
-                  <td class="py-3 font-semibold text-white">Mark Santos</td>
-                  <td>Video Editor</td>
-                  <td class="text-indigo-300">editor-ph@sandbox.com <i class="fa-solid fa-shield-halved text-emerald-400 ml-1" title="Directory Verified"></i></td>
-                  <td class="text-slate-400">20.00% of Remainder Pool</td>
-                  <td class="text-right text-emerald-400 font-bold">$422.45</td>
-                  <td class="text-right text-slate-400">1-2 Days (Est.)</td>
-                </tr>
-                <tr class="bg-indigo-950/20 text-indigo-200">
-                  <td class="py-3 font-semibold">Apex Media Studios (Creator)</td>
-                  <td>Executive Producer</td>
-                  <td>creator-biz@sandbox.com</td>
-                  <td class="text-slate-400">Creator Retained Remainder</td>
-                  <td class="text-right text-indigo-400 font-bold">$1,689.81</td>
-                  <td class="text-right text-slate-400">Immediate</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="text-right">
+            <span class="badge b-warn">Staged for Review</span>
+            <div class="mono" style="font-size:11px; color:var(--muted); margin-top:4px;" id="staged-state-hash">Hash: 7f8a91b2c...</div>
           </div>
+        </div>
 
-          <!-- Total Accounting Check -->
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80 flex flex-wrap items-center justify-between text-xs font-mono">
-            <div>
-              <span class="text-slate-400">Mathematical Parity Check:</span>
-              <span class="text-slate-200 ml-2">$300.00 + $422.45 + $1,689.81 = <span class="text-emerald-400 font-bold">$2,412.26</span></span>
-            </div>
-            <div class="flex items-center space-x-4">
-              <span class="text-xs text-slate-400">Estimated Outbound Fee: <span class="text-slate-300">$1.00 USD</span></span>
-              <button onclick="approvePayoutBatch()" id="btn-approve-payout" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2 rounded-lg transition shadow-lg shadow-emerald-600/20 flex items-center space-x-2">
-                <i class="fa-solid fa-signature"></i>
-                <span>Approve & Dispatch Batch Payout</span>
-              </button>
-            </div>
+        <div class="table-container" style="margin-top: 16px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Recipient</th>
+                <th>Role</th>
+                <th>PayPal Account</th>
+                <th>Share Rule</th>
+                <th class="text-right">Net Amount</th>
+                <th class="text-right">Arrival Time</th>
+              </tr>
+            </thead>
+            <tbody class="mono">
+              <tr>
+                <td style="font-family:var(--font-body); font-weight:600;">Ana Silva</td>
+                <td style="font-family:var(--font-body); color:var(--muted);">Designer</td>
+                <td>designer-br@sandbox.com <span class="badge b-ok">Verified</span></td>
+                <td>Fixed priority</td>
+                <td class="text-right"><b>$300.00</b></td>
+                <td class="text-right"><span class="badge b-warn">Estimate</span> Instant</td>
+              </tr>
+              <tr>
+                <td style="font-family:var(--font-body); font-weight:600;">Mark Santos</td>
+                <td style="font-family:var(--font-body); color:var(--muted);">Editor</td>
+                <td>editor-ph@sandbox.com <span class="badge b-ok">Verified</span></td>
+                <td>20% of remainder</td>
+                <td class="text-right"><b>$422.45</b></td>
+                <td class="text-right"><span class="badge b-warn">Estimate</span> 1-2 days</td>
+              </tr>
+              <tr style="background:var(--panel);">
+                <td style="font-family:var(--font-body); font-weight:700;">Apex Media (Creator)</td>
+                <td style="font-family:var(--font-body); color:var(--muted);">Producer</td>
+                <td>creator-biz@sandbox.com</td>
+                <td>Remainder retained</td>
+                <td class="text-right"><b>$1,689.81</b></td>
+                <td class="text-right">Immediate</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="row" style="margin-top:16px; padding-top:12px; border-bottom:0;">
+          <div style="font-size:12px;">
+            <span style="color:var(--muted);">Parity check:</span>
+            <b class="mono" style="margin-left:6px;">$300.00 + $422.45 + $1,689.81 = $2,412.26</b>
+            <span class="badge b-ok" style="margin-left:8px;">Balanced</span>
           </div>
-
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:12px; color:var(--muted);" class="mono">Est. batch fee: $1.00 USD <span class="badge b-warn">Estimate</span></span>
+            <button onclick="approvePayoutBatch()" id="btn-approve-payout" class="btn">
+              Approve & Dispatch Payout
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- ===================================================================== -->
-    <!-- TAB 3: DOUBLE-ENTRY LEDGER & AUDIT TRAIL                              -->
-    <!-- ===================================================================== -->
-    <div id="view-ledger" class="space-y-6 hidden">
-      <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
-        <div>
-          <h2 class="text-base font-semibold text-white">Immutable Double-Entry Financial General Ledger</h2>
-          <p class="text-xs text-slate-400">Every journal entry strictly balances (Debits == Credits in minor units). Mutations blocked by SQLite triggers.</p>
+    <!-- ======================================================================= -->
+    <!-- TAB 3: LEDGER                                                           -->
+    <!-- ======================================================================= -->
+    <section id="view-ledger" class="hidden">
+      <div class="tab-header">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;">
+          <div>
+            <span class="tag">Double-Entry Records</span>
+            <h2>Ledger</h2>
+            <p class="tab-sub">Every posted entry strictly balances debits and credits in integer cents. Blocked against mutations.</p>
+          </div>
+          <button onclick="exportCSV()" class="btn ghost sm">
+            Export Schedule-C CSV
+          </button>
         </div>
-        <button onclick="exportCSV()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs px-3.5 py-2 rounded-lg transition font-medium flex items-center space-x-2">
-          <i class="fa-solid fa-download"></i>
-          <span>Download Schedule-C CSV Export</span>
-        </button>
       </div>
 
-      <!-- Journal Entries Container -->
-      <div class="bg-slate-900/60 rounded-xl border border-slate-800 overflow-hidden">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-slate-900 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
             <tr>
-              <th class="p-3">Reference ID</th>
-              <th class="p-3">Posting Date</th>
-              <th class="p-3">Narration & Details</th>
-              <th class="p-3 text-right">Debit (Cents)</th>
-              <th class="p-3 text-right">Credit (Cents)</th>
-              <th class="p-3 text-center">Trigger Status</th>
+              <th>Reference ID</th>
+              <th>Date</th>
+              <th>Narration & Posting Legs</th>
+              <th class="text-right">Debit</th>
+              <th class="text-right">Credit</th>
+              <th class="text-center">Parity</th>
             </tr>
           </thead>
-          <tbody id="ledger-rows-body" class="divide-y divide-slate-800/60 font-mono text-slate-300">
-            <!-- Dynamically populated rows -->
+          <tbody id="ledger-rows-body" class="mono">
             <tr>
-              <td class="p-3 font-semibold text-white">INV-2500-01</td>
-              <td class="p-3 text-slate-400">2026-11-07 14:00</td>
-              <td class="p-3">
-                <div class="font-medium text-slate-200">Milestone 1 Invoiced to NordVPN</div>
-                <div class="text-[10px] text-slate-500">DR 1200 Accounts Receivable / CR 4010 Sponsorship Revenue</div>
+              <td>INV-2500-01</td>
+              <td style="color:var(--muted);">2026-11-07 14:00</td>
+              <td style="font-family:var(--font-body);">
+                <div style="font-weight:600;">Milestone 1 Invoiced to NordVPN</div>
+                <div class="mono" style="font-size:11px; color:var(--muted);">DR 1200 Accounts Receivable / CR 4010 Sponsorship Revenue</div>
               </td>
-              <td class="p-3 text-right text-indigo-400">$2,500.00</td>
-              <td class="p-3 text-right text-indigo-400">$2,500.00</td>
-              <td class="p-3 text-center"><span class="bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-0.5 rounded">BALANCED</span></td>
+              <td class="text-right">$2,500.00</td>
+              <td class="text-right">$2,500.00</td>
+              <td class="text-center"><span class="badge b-ok">Balanced</span></td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div>
 
-    <!-- ===================================================================== -->
-    <!-- TAB 4: DETERMINISTIC FINANCIAL COPILOT                                -->
-    <!-- ===================================================================== -->
-    <div id="view-copilot" class="space-y-6 hidden">
-      <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800">
-        <h2 class="text-base font-semibold text-white">Deterministic Financial Copilot & Contract Risk Analyzer</h2>
-        <p class="text-xs text-slate-400">Natural language interface backed by strictly deterministic backend ID lookups. Zero arithmetic hallucinations.</p>
+      <div class="note">
+        Exports and ledger rows are provided for creator record-keeping and Schedule-C preparation. This prototype does not provide formal tax or accounting advice.
+      </div>
+    </section>
+
+    <!-- ======================================================================= -->
+    <!-- TAB 4: COPILOT                                                          -->
+    <!-- ======================================================================= -->
+    <section id="view-copilot" class="hidden">
+      <div class="tab-header">
+        <span class="tag">Deterministic Financial Queries</span>
+        <h2>Financial Copilot</h2>
+        <p class="tab-sub">Queries run through fixed database tools and integer-cent calculations. Zero predicted math.</p>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- Chat Console -->
-        <div class="lg:col-span-2 bg-slate-900/60 rounded-xl border border-slate-800 p-5 flex flex-col h-[520px]">
-          <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 pr-2">
-            <!-- Initial AI Greeting -->
-            <div class="flex items-start space-x-3">
-              <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">AI</div>
-              <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 leading-relaxed max-w-xl">
-                Hello! I am your SplitFlow Financial Copilot. I execute deterministic tool calls over your double-entry ledger and evaluate contractual cash-flow risk terms. How can I help you today?
-              </div>
+      <div class="chat-layout">
+        <!-- Main Chat Stream -->
+        <div class="chat-box">
+          <div id="chat-messages" class="chat-messages">
+            <div class="chat-msg ai">
+              <span class="tag" style="display:block; margin-bottom:4px;">Copilot Assistant</span>
+              Hello. I answer questions by querying your double-entry general ledger and contract milestones. How can I assist you with your payout records?
+            </div>
+          </div>
+          <div class="chat-input-bar">
+            <input type="text" id="copilot-input" class="chat-input" placeholder="e.g. What did I net after team payouts and fees?" onkeydown="if(event.key==='Enter') sendCopilotQuery()">
+            <button onclick="sendCopilotQuery()" class="btn">Send</button>
+          </div>
+        </div>
+
+        <!-- Sidebar Prompts & Guard Info -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div class="panel-card">
+            <span class="tag">Suggested Queries</span>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+              <button onclick="askCopilot('What did I actually net from the NordVPN campaign after paying my team and fees?')" class="btn ghost sm" style="text-align:left; justify-content:flex-start;">
+                Net Retained Profit
+              </button>
+              <button onclick="askCopilot('Evaluate contract risk terms for cash flow delays and kill fees')" class="btn ghost sm" style="text-align:left; justify-content:flex-start;">
+                Check Payment Terms Risk
+              </button>
+              <button onclick="askCopilot('List all verified collaborators and their PayPal accounts')" class="btn ghost sm" style="text-align:left; justify-content:flex-start;">
+                Show Team Directory
+              </button>
             </div>
           </div>
 
-          <!-- Prompt Input Form -->
-          <div class="mt-4 pt-3 border-t border-slate-800 flex items-center space-x-2">
-            <input type="text" id="copilot-input" placeholder="e.g. What did I net after team payouts and fees?" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-sans" onkeydown="if(event.key==='Enter') sendCopilotQuery()">
-            <button onclick="sendCopilotQuery()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg text-xs font-medium transition">
-              <i class="fa-solid fa-paper-plane mr-1"></i> Send
-            </button>
+          <div class="panel-card" style="font-size:12px; color:var(--muted);">
+            <div style="font-weight:700; color:var(--text); margin-bottom:6px;">Deterministic Guard</div>
+            Calculations are computed directly by backend arithmetic routines, not estimated by language model generation.
           </div>
         </div>
-
-        <!-- Quick Prompts & Verified Tools -->
-        <div class="space-y-4">
-          <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2">
-            <h4 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Quick Actions:</h4>
-            <button onclick="askCopilot('What did I actually net from the NordVPN campaign after paying my team and fees?')" class="w-full text-left bg-slate-950 hover:bg-slate-800/60 border border-slate-800 p-2.5 rounded-lg text-xs text-slate-300 transition">
-              💰 Calculate Net Retained Profit
-            </button>
-            <button onclick="askCopilot('Evaluate contract risk terms for cash flow delays and kill fees')" class="w-full text-left bg-slate-950 hover:bg-slate-800/60 border border-slate-800 p-2.5 rounded-lg text-xs text-slate-300 transition">
-              ⚠️ Evaluate Contract Cash-Flow Risk
-            </button>
-            <button onclick="askCopilot('List all verified collaborators and their PayPal accounts')" class="w-full text-left bg-slate-950 hover:bg-slate-800/60 border border-slate-800 p-2.5 rounded-lg text-xs text-slate-300 transition">
-              👥 Show Verified Team Directory
-            </button>
-          </div>
-
-          <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-800 space-y-2 text-xs text-slate-400">
-            <div class="font-semibold text-slate-300">Tool Execution Guard:</div>
-            <p class="text-[11px] leading-relaxed">
-              Every answer is grounded in verified SQL ledger entries. Mathematical outputs are computed in Python minor units, not predicted by the language model.
-            </p>
-          </div>
-        </div>
-
       </div>
-    </div>
+    </section>
 
   </main>
 
+  <!-- ========================================================================= -->
+  <!-- FOOTER (MATCHING LANDING FOOTER)                                          -->
+  <!-- ========================================================================= -->
+  <footer class="foot">
+    <div class="wrap" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+      <div>SplitFlow · sandbox prototype · MIT licensed</div>
+      <div>Record-keeping only · Not tax advice</div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT CONTROLLERS (PRESERVING 100% OF INTERACTIVITY)                  -->
+  <!-- ========================================================================= -->
   <script>
     const API_BASE = "http://127.0.0.1:8000";
     const SESSION_TOKEN = "demo_session_token_12345";
 
     function switchTab(tabId) {
       ['contracts', 'staging', 'ledger', 'copilot'].forEach(t => {
-        document.getElementById(`view-${t}`).classList.add('hidden');
-        document.getElementById(`tab-${t}`).classList.remove('border-indigo-500', 'text-indigo-400');
-        document.getElementById(`tab-${t}`).classList.add('border-transparent', 'text-slate-400');
+        const v = document.getElementById(`view-${t}`);
+        const nav = document.getElementById(`nav-btn-${t}`);
+        if (v) v.classList.add('hidden');
+        if (nav) nav.classList.remove('active');
       });
-      document.getElementById(`view-${tabId}`).classList.remove('hidden');
-      document.getElementById(`tab-${tabId}`).classList.add('border-indigo-500', 'text-indigo-400');
-      document.getElementById(`tab-${tabId}`).classList.remove('border-transparent', 'text-slate-400');
+      const activeV = document.getElementById(`view-${tabId}`);
+      const activeNav = document.getElementById(`nav-btn-${tabId}`);
+      if (activeV) activeV.classList.remove('hidden');
+      if (activeNav) activeNav.classList.add('active');
     }
 
     function triggerHighlight(milestoneNum) {
-      document.getElementById('quote-line-1').classList.remove('highlight-active');
-      document.getElementById('quote-line-2').classList.remove('highlight-active');
+      const q1 = document.getElementById('quote-line-1');
+      const q2 = document.getElementById('quote-line-2');
+      if (q1) q1.classList.remove('highlight-active');
+      if (q2) q2.classList.remove('highlight-active');
       const el = document.getElementById(`quote-line-${milestoneNum}`);
       if (el) el.classList.add('highlight-active');
     }
 
     function loadSampleContract(version) {
+      const btn1 = document.getElementById('btn-sample-v1');
+      const btn2 = document.getElementById('btn-sample-v2');
+
       if (version === 1) {
+        if (btn1) btn1.classList.add('active-sow');
+        if (btn2) btn2.classList.remove('active-sow');
         document.getElementById('doc-title-display').innerText = "NordVPN_Sponsorship_Agreement_v1.pdf";
         document.getElementById('hash-badge').innerText = "SHA: a7f8c9d0...";
         document.getElementById('diff-alert-banner').classList.add('hidden');
         document.getElementById('m2-amount-display').innerText = "$2,500.00 USD";
+        document.getElementById('summary-sow-label').innerText = "NordVPN Campaign ($5,000.00 USD)";
         triggerHighlight(1);
       } else {
+        if (btn2) btn2.classList.add('active-sow');
+        if (btn1) btn1.classList.remove('active-sow');
         document.getElementById('doc-title-display').innerText = "NordVPN_Sponsorship_Agreement_v2.pdf (Amended)";
         document.getElementById('hash-badge').innerText = "SHA: b3e4f5a1...";
         document.getElementById('diff-alert-banner').classList.remove('hidden');
-        document.getElementById('diff-summary-text').innerText = "Payment window delayed from Net-15 to Net-60 days. Milestone 2 reduced from $2,500.00 to $2,000.00 (-$500). Staging locked.";
-        document.getElementById('m2-amount-display').innerText = "$2,000.00 USD (-$500)";
+        document.getElementById('diff-summary-text').innerText = "Payment window changed from Net-15 to Net-60. Milestone 2 reduced from $2,500.00 to $2,000.00 (-$500.00). Payout staging is locked.";
+        document.getElementById('m2-amount-display').innerText = "$2,000.00 USD (-$500.00)";
+        document.getElementById('summary-sow-label').innerText = "NordVPN Campaign ($4,500.00 USD amended)";
       }
     }
 
     function reapproveContract() {
       document.getElementById('diff-alert-banner').classList.add('hidden');
-      alert("Contract terms accepted by creator. Automated payout staging is unlocked.");
+      alert("Contract terms accepted by creator. Payout staging is unlocked.");
     }
 
     function generatePayPalInvoice(milestoneNum) {
       const btn = document.getElementById('btn-invoice-m1');
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Dispatching...`;
+      btn.innerText = "Dispatching...";
       setTimeout(() => {
-        btn.innerHTML = `<i class="fa-solid fa-check mr-1.5"></i> Invoice Sent`;
-        btn.classList.remove('bg-indigo-600', 'hover:bg-indigo-500');
-        btn.classList.add('bg-emerald-600');
-        document.getElementById('invoice-status-m1').innerHTML = `PayPal Invoice ID: <span class="text-indigo-400 font-bold">INV2-NORD-991A</span>`;
+        btn.innerText = "Invoice Sent";
+        btn.classList.add('ghost');
+        document.getElementById('invoice-status-m1').innerHTML = `Invoice: <span class="mono">INV2-NORD-991A</span>`;
         document.getElementById('badge-staged-count').classList.remove('hidden');
-      }, 800);
+      }, 700);
     }
 
     function simulatePaymentCapture() {
-      alert("Webhook INVOICING.INVOICE.PAID received!\n\n1. Level 1 Event Verified (WH-8812)\n2. Traversed payments.transactions[] -> Capture CAP-2026-991A\n3. Net deposited: $2,412.26 USD\n4. Cumulative split engine allocated $300.00 flat fee and 20% to Editor.");
+      alert("Webhook INVOICING.INVOICE.PAID received!\n\n• Event: WH-8812\n• Capture Ref: CAP-2026-991A\n• Net received: $2,412.26 USD (Gross: $2,500.00 - Inbound fee: $87.74)\n• Staged payouts calculated.");
       switchTab('staging');
     }
 
     function approvePayoutBatch() {
       const btn = document.getElementById('btn-approve-payout');
-      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Dispatching via PayPal Payouts...`;
+      btn.innerText = "Processing PayPal Payout...";
+      btn.disabled = true;
+
       setTimeout(() => {
-        btn.innerHTML = `<i class="fa-solid fa-check mr-1.5"></i> Settled via PayPal Payouts`;
-        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500');
-        btn.classList.add('bg-slate-700', 'cursor-not-allowed');
-        btn.disabled = true;
+        btn.innerText = "Dispatched via PayPal";
+        btn.classList.add('ghost');
+        btn.style.cursor = "not-allowed";
 
         // Add settled legs to ledger table
         const tbody = document.getElementById('ledger-rows-body');
         tbody.innerHTML += `
-          <tr class="fade-in bg-slate-900/30">
-            <td class="p-3 font-semibold text-white">CAP-2026-991A</td>
-            <td class="p-3 text-slate-400">2026-11-07 14:05</td>
-            <td class="p-3">
-              <div class="font-medium text-slate-200">PayPal Invoice Payment Cleared (Gross: $2,500.00, Fee: $87.74, Net: $2,412.26)</div>
-              <div class="text-[10px] text-slate-500">DR 1010 Cash ($2,412.26) / DR 5010 Fee ($87.74) / CR 1200 AR ($2,500.00)</div>
+          <tr>
+            <td>CAP-2026-991A</td>
+            <td style="color:var(--muted);">2026-11-07 14:05</td>
+            <td style="font-family:var(--font-body);">
+              <div style="font-weight:600;">PayPal Invoice Payment Cleared (Gross: $2,500.00, Fee: $87.74, Net: $2,412.26)</div>
+              <div class="mono" style="font-size:11px; color:var(--muted);">DR 1010 Cash ($2,412.26) / DR 5010 Fee ($87.74) / CR 1200 AR ($2,500.00)</div>
             </td>
-            <td class="p-3 text-right text-emerald-400">$2,500.00</td>
-            <td class="p-3 text-right text-emerald-400">$2,500.00</td>
-            <td class="p-3 text-center"><span class="bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-0.5 rounded">BALANCED</span></td>
+            <td class="text-right">$2,500.00</td>
+            <td class="text-right">$2,500.00</td>
+            <td class="text-center"><span class="badge b-ok">Balanced</span></td>
           </tr>
-          <tr class="fade-in bg-slate-900/30">
-            <td class="p-3 font-semibold text-white">PAYOUT-STAGE-01</td>
-            <td class="p-3 text-slate-400">2026-11-07 14:06</td>
-            <td class="p-3">
-              <div class="font-medium text-slate-200">Dispatched Batch Payout: Editor ($422.45), Designer ($300.00), Outbound Fee ($1.00)</div>
-              <div class="text-[10px] text-slate-500">DR 5030 Contractor Expense ($722.45) / DR 5020 Payout Fee ($1.00) / CR 1010 Cash ($723.45)</div>
+          <tr>
+            <td>PAYOUT-STAGE-01</td>
+            <td style="color:var(--muted);">2026-11-07 14:06</td>
+            <td style="font-family:var(--font-body);">
+              <div style="font-weight:600;">Dispatched Batch Payout: Editor ($422.45), Designer ($300.00), Outbound Fee ($1.00)</div>
+              <div class="mono" style="font-size:11px; color:var(--muted);">DR 5030 Contractor Expense ($722.45) / DR 5020 Payout Fee ($1.00) / CR 1010 Cash ($723.45)</div>
             </td>
-            <td class="p-3 text-right text-emerald-400">$723.45</td>
-            <td class="p-3 text-right text-emerald-400">$723.45</td>
-            <td class="p-3 text-center"><span class="bg-emerald-500/10 text-emerald-400 text-[10px] px-2 py-0.5 rounded">BALANCED</span></td>
+            <td class="text-right">$723.45</td>
+            <td class="text-right">$723.45</td>
+            <td class="text-center"><span class="badge b-ok">Balanced</span></td>
           </tr>
         `;
-        alert("Batch Payout Successful!\n\n• Mark Santos (Manila): $422.45 USD\n• Ana Silva (Brazil): $300.00 USD\n• PayPal Outbound Fee: $1.00 USD\n• Balanced journal legs posted to immutable ledger.");
-      }, 1000);
+        alert("Batch Payout Successful!\n\n• Mark Santos (Editor): $422.45 USD\n• Ana Silva (Designer): $300.00 USD\n• PayPal Outbound Fee: $1.00 USD (Estimate)\n• Double-entry journal legs posted to ledger.");
+      }, 900);
     }
 
-    function exportCSV() {
-      window.location.href = `${API_BASE}/api/ledger/export-csv`;
+    async function exportCSV() {
+      try {
+        const res = await fetch(`${API_BASE}/api/ledger/export-csv`, {
+          headers: { "Authorization": `Bearer ${SESSION_TOKEN}` }
+        });
+        if (res.ok) {
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Schedule_C_Contractor_Expenses_${new Date().getFullYear()}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        } else {
+          window.location.href = `${API_BASE}/api/ledger/export-csv?token=${SESSION_TOKEN}`;
+        }
+      } catch (e) {
+        window.location.href = `${API_BASE}/api/ledger/export-csv?token=${SESSION_TOKEN}`;
+      }
     }
 
     function askCopilot(prompt) {
@@ -522,63 +977,55 @@
 
       const chatBox = document.getElementById('chat-messages');
       chatBox.innerHTML += `
-        <div class="flex items-start justify-end space-x-3 fade-in">
-          <div class="bg-indigo-600/30 border border-indigo-500/30 p-3 rounded-xl text-xs text-indigo-100 max-w-xl">
-            ${text}
-          </div>
-          <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center text-white text-xs font-bold shrink-0">ME</div>
+        <div class="chat-msg user">
+          ${text}
         </div>
       `;
       input.value = "";
       chatBox.scrollTop = chatBox.scrollHeight;
 
-      // Call API or provide instant deterministic response
       setTimeout(() => {
         let reply = "";
         let toolBadge = "";
 
         if (text.toLowerCase().includes("net") || text.toLowerCase().includes("how much") || text.toLowerCase().includes("profit")) {
-          toolBadge = `<span class="text-[10px] bg-slate-800 text-indigo-400 border border-slate-700 px-2 py-0.5 rounded font-mono">Executed Tool: get_contract_financial_summary(contract_id=1)</span>`;
+          toolBadge = `<span class="badge b-ok mono">Tool: get_contract_financial_summary(contract_id=1)</span>`;
           reply = `
-            <strong>Financial Summary for NordVPN Campaign (USD):</strong><br>
-            • Gross Invoiced: <strong>$5,000.00</strong><br>
-            • Inbound PayPal Fees: <strong>-$87.74</strong><br>
-            • Team Contractor Payouts: <strong>-$722.45</strong> (Mark: $422.45 | Ana: $300.00)<br>
-            • Outbound Payout Fee: <strong>-$1.00</strong><br>
+            <b>Financial summary for NordVPN campaign (USD):</b><br>
+            • Gross invoiced: <span class="mono">$5,000.00</span><br>
+            • Inbound PayPal fees: <span class="mono">-$87.74</span><br>
+            • Team payouts: <span class="mono">-$722.45</span> (Mark: $422.45 | Ana: $300.00)<br>
+            • Outbound payout fee: <span class="mono">-$1.00 (estimate)</span><br>
             ─────────────────────────────<br>
-            • <strong>Creator Net Retained Profit:</strong> <span class="text-emerald-400 font-bold">$1,688.81</span>
+            • <b>Creator net retained:</b> <span class="mono" style="color:var(--ok); font-weight:700;">$1,688.81</span>
           `;
         } else if (text.toLowerCase().includes("risk") || text.toLowerCase().includes("terms")) {
-          toolBadge = `<span class="text-[10px] bg-slate-800 text-amber-400 border border-slate-700 px-2 py-0.5 rounded font-mono">Executed Tool: analyze_contract_risk_terms(contract_id=1)</span>`;
+          toolBadge = `<span class="badge b-warn mono">Tool: analyze_contract_risk_terms(contract_id=1)</span>`;
           reply = `
-            <strong>Contract Risk Assessment (Risk Score: MEDIUM):</strong><br>
-            • ⚠️ <strong>Payment Window:</strong> In v2, payment terms shifted from Net-15 to Net-60 days (45-day cash flow gap).<br>
-            • ⚠️ <strong>Milestone Reduction:</strong> Milestone 2 reduced from $2,500 to $2,000 (-$500).<br>
-            • ✅ <strong>Kill Fee:</strong> Standard early cancellation fee clause present.
+            <b>Contract terms analysis:</b><br>
+            • ⚠️ <b>Payment window:</b> In SOW v2, payment terms shifted from Net-15 to Net-60 days (45-day delay).<br>
+            • ⚠️ <b>Milestone reduction:</b> Milestone 2 reduced from $2,500.00 to $2,000.00 (-$500.00).<br>
+            • ✓ <b>Kill fee:</b> Standard cancellation fee clause present.
           `;
         } else {
-          toolBadge = `<span class="text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded font-mono">Executed Tool: list_collaborators()</span>`;
+          toolBadge = `<span class="badge b-ok mono">Tool: list_collaborators()</span>`;
           reply = `
-            <strong>Active Verified Collaborator Directory:</strong><br>
-            • Mark Santos (Video Editor) — <code>editor-ph@sandbox.com</code> [USD]<br>
-            • Ana Silva (Thumbnail Designer) — <code>designer-br@sandbox.com</code> [USD]<br>
-            • David Miller (Talent Manager) — <code>manager-us@sandbox.com</code> [USD]
+            <b>Verified collaborator directory:</b><br>
+            • Mark Santos (Editor) — <code class="mono">editor-ph@sandbox.com</code> [USD]<br>
+            • Ana Silva (Designer) — <code class="mono">designer-br@sandbox.com</code> [USD]<br>
+            • David Miller (Manager) — <code class="mono">manager-us@sandbox.com</code> [USD]
           `;
         }
 
         chatBox.innerHTML += `
-          <div class="flex items-start space-x-3 fade-in">
-            <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">AI</div>
-            <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl text-xs text-slate-200 leading-relaxed max-w-xl space-y-2">
-              <div>${toolBadge}</div>
-              <div>${reply}</div>
-            </div>
+          <div class="chat-msg ai">
+            <div style="margin-bottom:6px;">${toolBadge}</div>
+            <div>${reply}</div>
           </div>
         `;
         chatBox.scrollTop = chatBox.scrollHeight;
-      }, 400);
+      }, 350);
     }
   </script>
 </body>
 </html>
-

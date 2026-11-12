@@ -1,0 +1,26 @@
+# ---------- PayPal (Sandbox) ----------
+PAYPAL_CLIENT_ID=paste_sandbox_client_id_here
+PAYPAL_CLIENT_SECRET=paste_sandbox_secret_here
+PAYPAL_API_BASE_URL=https://api-m.sandbox.paypal.com
+PAYPAL_WEBHOOK_ID=paste_webhook_id_after_creating_webhook
+
+# ---------- App security ----------
+# Generate with: python -c "import secrets; print(secrets.token_urlsafe(32))"
+SPLITFLOW_CREATOR_SECRET=paste_long_random_string_here
+
+# ---------- Database ----------
+DATABASE_URL=sqlite:///./splitflow.db
+
+# ---------- AI (use whichever provider you choose) ----------
+LLM_PROVIDER=gemini
+GEMINI_API_KEY=paste_key_here
+LLM_MODEL=check_current_model_name_in_provider_docs
+# OPENAI_API_KEY=
+
+# ---------- Payout safety limits (in cents, integers) ----------
+MAX_BATCH_LIMIT_CENTS=500000
+PAYOUT_CURRENCY=USD
+
+# ---------- URLs ----------
+PUBLIC_BASE_URL=http://localhost:8000
+FRONTEND_URL=http://localhost:3000
