@@ -100,6 +100,11 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 import os
 
+static_dir = os.path.join(os.path.dirname(__file__), "..", "static")
+assets_dir = os.path.join(static_dir, "assets")
+if os.path.exists(assets_dir):
+    app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
 @app.get("/")
 @app.get("/dashboard")
 def serve_dashboard():
